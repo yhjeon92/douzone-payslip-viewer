@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>더존비즈온 ERP 급여명세서 뷰어</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            /* align-items: center; */
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+        }
+        input[type="file"] {
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #uploadContainer {
+            height: 30%;
+        }
+        #payslipContainer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            padding: 20px;
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #payslipView {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <script>
+        function checkFile() {
+            const messageDiv = document.getElementById('message');
+
+            if (fileInput.files.length === 0) {
+                messageDiv.textContent = 'Please select a file to upload.';
+                messageDiv.style.color = 'red';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+                messageDiv.textContent = 'Invalid file type. Please select an HTML file.';
+                messageDiv.style.color = 'red';
+                return;
+            }
+
+            messageDiv.textContent = `File "${file.name}" selected for upload.`;
+            messageDiv.style.color = 'green';
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const messageDiv = document.getElementById('message');
+            const payslipView = document.getElementById('payslipView');
+            const passwordInput = document.getElementById('passwordInput');
+
+            if (fileInput.files.length === 0) {
+                messageDiv.textContent = 'Please select a file to upload.';
+                messageDiv.style.color = 'red';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+                messageDiv.textContent = 'Invalid file type. Please select an HTML file.';
+                messageDiv.style.color = 'red';
+                return;
+            }
+
+            // You can handle the file upload here, e.g., send it to a server
+            // For now, just display the file name
+            messageDiv.textContent = `Uploading file "${file.name}".`;
+            messageDiv.style.color = 'green';
+
+            var formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('password', passwordInput.value);
+            fetch ("/upload", {
+                method: "POST",
+                body: formData
+            }).then(res => { 
+              if (!res.ok) {
+                res.json().then(err => alert(err.detail));
+                return;
+              } else {
+                return res.text();
+              }
+            }).then(result => {
+              payslipView.srcdoc = result;
+            })
+            .catch((error) => (alert(error)));
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+      <div id="uploadContainer">
+        <h1>Upload an HTML File</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+          <input type="file" id="fileInput" accept=".html, .htm" onchange="checkFile()">
+          <button type="button" id="uploadButton" onclick="uploadFile()">Upload</button>
+        </form>
+        <div id="passwordContainer" style="display:flex-column;margin-top:10px">
+          <b style="margin-right:10px">Password</b>
+          <input type="password" id="passwordInput">
+        </div>
+        <div id="message" style="margin-top:10px"></div>
+      </div>
+      <div id="payslipContainer">
+        <iframe id="payslipView"/>
+      </div>
+    </div>
+</body>
+</html>
