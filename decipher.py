@@ -38,7 +38,7 @@ def sha1_hash(data):
 
 
 def from_file(file_path, password):
-    f = open(file_path, 'r')
+    f = open(file_path, 'r', encoding='utf-8')
     html_data = f.read()
     f.close()
     
@@ -54,7 +54,7 @@ def from_string(html_data, password):
 if __name__ == '__main__':
     decrypted = from_file(sys.argv[1], sys.argv[2])
 
-    f = open(os.getcwd() + '/decoded.html', 'w')
+    f = open(os.getcwd() + '/decoded.html', 'w', encoding='utf-8')
     f.write(decrypted)
     f.close()
 
